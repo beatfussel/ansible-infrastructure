@@ -1,0 +1,14 @@
+---
+- name: Apply Linux baseline
+  hosts: raspberry
+  become: true
+
+  tasks:
+    - name: Ensure useful base packages are installed
+      ansible.builtin.apt:
+        name:
+          - curl
+          - vim
+        state: present
+        update_cache: true
+        cache_valid_time: 3600

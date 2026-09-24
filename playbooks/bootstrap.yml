@@ -1,0 +1,32 @@
+---
+- name: Bootstrap Ansible automation account
+  hosts: raspberry
+  become: true
+
+  vars:
+    automation_user: ansible
+
+  tasks:
+    - name: Ensure automation account exists
+      ansible.builtin.user:
+        name: "{{ automation_user }}"
+        comment: Ansible Automation
+        create_home: true
+        shell: /bin/bash
+        state: present
+
+    - name: Install automation SSH public key
+      ansible.posix.authorized_key:
+        user: "{{ automation_user }}"
+        state: present
+        key: "{{ lookup('ansible.builtin.file', lookup('ansible.builtin.env', 'HOME') + '/.ssh/ansible_ed25519.pub') }}"
+
+    - name: Allow automation account to use sudo without password
+      ansible.builtin.copy:
+        dest: "/etc/sudoers.d/{{ automation_user }}"
+        content: |
+          {{ automation_user }} ALL=(ALL) NOPASSWD: ALL
+        owner: root
+        group: root
+        mode: "0440"
+        validate: "/usr/sbin/visudo -cf %s"

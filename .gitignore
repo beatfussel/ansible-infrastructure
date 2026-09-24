@@ -1,0 +1,16 @@
+# Ansible runtime/retry files
+*.retry
+
+# Python
+__pycache__/
+*.pyc
+
+# Local editor files
+*.swp
+*~
+
+# Secrets / local credentials
+*.pem
+*.key
+*.vault-password
+.vault_pass
