@@ -1,12 +1,34 @@
 ---
-- name: Bootstrap Ansible automation account
+- name: Prepare host for Ansible management
   hosts: raspberry
   become: true
+  gather_facts: false
 
   vars:
     automation_user: ansible
 
   tasks:
+    - name: Check whether Python is available
+      ansible.builtin.raw: test -x /usr/bin/python3
+      register: python_check
+      changed_when: false
+      failed_when: false
+      check_mode: false
+
+    - name: Install Python if required
+      ansible.builtin.raw: apt-get update && apt-get install -y python3
+      when: python_check.rc != 0
+
+    - name: Gather facts after Python bootstrap
+      ansible.builtin.setup:
+
+    - name: Ensure python3-apt is installed
+      ansible.builtin.apt:
+        name: python3-apt
+        state: present
+        update_cache: true
+        cache_valid_time: 3600
+
     - name: Ensure automation account exists
       ansible.builtin.user:
         name: "{{ automation_user }}"
